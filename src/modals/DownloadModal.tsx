@@ -18,6 +18,7 @@ import Button from '../components/button';
 import {Icon} from 'react-native-eva-icons';
 import {Colors} from '../constants/Colors';
 import {MetaDataProps} from '../database/dao/YouTubeDownloads';
+import {DownloadRequestProps} from '../types';
 
 type ModalProps = {
   visible: boolean;
@@ -26,9 +27,10 @@ type ModalProps = {
 };
 const DownloadModal = ({visible, hide, style}: ModalProps) => {
   const navigation = useNavigation<any>();
-  const [audio, setAudio] = useState<Array<MetaDataProps>>([]);
-  const [video, setVideo] = useState<Array<MetaDataProps>>([]);
-  const {downloaded} = useAppSelector(state => state.download);
+  const [audio, setAudio] = useState<Array<DownloadRequestProps>>([]);
+  const [video, setVideo] = useState<Array<DownloadRequestProps>>([]);
+  const [selectedFormat, setSelectedFormat] =
+    useState<DownloadRequestProps | null>(null);
 
   const {downloadMedia} = useDownload();
 
@@ -39,7 +41,7 @@ const DownloadModal = ({visible, hide, style}: ModalProps) => {
 
   const fetchVideoFormats = async () => {
     try {
-      const response = await axios.get('http://192.168.1.4:3000/download');
+      const response = await axios.get('http://192.168.1.35:3000/download');
       const {audio, video} = response.data[0];
       setAudio(audio);
       setVideo(video);
@@ -63,7 +65,8 @@ const DownloadModal = ({visible, hide, style}: ModalProps) => {
               key={index}
               type="audio"
               item={item}
-              isSelected={downloaded[0]?.url === item?.url}
+              isSelected={selectedFormat?.url === item.url}
+              onSelect={setSelectedFormat}
             />
           ))
           .slice(0, 2)}
@@ -74,7 +77,8 @@ const DownloadModal = ({visible, hide, style}: ModalProps) => {
               key={index}
               type="video"
               item={item}
-              isSelected={downloaded[0]?.url === item?.url}
+              isSelected={selectedFormat?.url === item.url}
+              onSelect={setSelectedFormat}
             />
           ))
           .slice(0, 6)}
@@ -105,11 +109,13 @@ const DownloadModal = ({visible, hide, style}: ModalProps) => {
 
         <Button
           style={{paddingVertical: 15, borderRadius: 30}}
-          disabled={!downloaded[0]?.url}
+          disabled={!selectedFormat}
           title="DOWNLOAD"
           onPress={() => {
-            downloadMedia(downloaded[0]);
-            hide?.();
+            if (selectedFormat) {
+              downloadMedia(selectedFormat);
+              hide?.();
+            }
           }}
         />
       </View>

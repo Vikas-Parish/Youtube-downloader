@@ -2,27 +2,28 @@ import React, {memo} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import {RadioButton} from 'react-native-paper';
 import {Icon} from 'react-native-eva-icons';
-import {MediaType} from '../../types';
+import {DownloadRequestProps, MediaType} from '../../types';
 import {Colors} from '../../constants/Colors';
 import {MetaDataProps} from '../../database/dao/YouTubeDownloads';
 import {useDispatch} from 'react-redux';
 import {setSelectFormate} from '../../redux/reducers/Downloads';
 
 type FormateType = {
-  item: MetaDataProps;
+  item: DownloadRequestProps;
   isSelected: boolean;
   type: MediaType;
+  onSelect: (item: DownloadRequestProps) => void;
 };
 
-const Formats = ({item, isSelected, type}: FormateType) => {
-  const dispatch = useDispatch();
-  const onSelectFormate = () => {
-    dispatch(setSelectFormate(item));
-  };
+const Formats = ({item, isSelected, type, onSelect}: FormateType) => {
+  // const dispatch = useDispatch();
+  // const onSelectFormate = () => {
+  //   dispatch(setSelectFormate(item as MetaDataProps));
+  // };
 
   return (
     <TouchableOpacity
-      onPress={onSelectFormate}
+      onPress={() => onSelect(item)}
       style={{
         marginVertical: 10,
         paddingVertical: 5,
@@ -59,7 +60,7 @@ const Formats = ({item, isSelected, type}: FormateType) => {
           color={Colors.primary}
           value={isSelected ? 'YES' : 'NO'}
           status={isSelected ? 'checked' : 'unchecked'}
-          onPress={onSelectFormate}
+          onPress={() => onSelect(item)}
         />
       </View>
     </TouchableOpacity>

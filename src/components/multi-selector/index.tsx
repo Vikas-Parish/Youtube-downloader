@@ -15,7 +15,7 @@ import {
 } from '../../database/dao/YouTubeDownloads';
 import {Colors} from '../../constants/Colors';
 import {useDispatch} from 'react-redux';
-import {PlayScreen} from '../../redux/reducers/Downloads';
+import {retriveDownloadsMedia} from '../../redux/reducers/Downloads';
 
 interface SelectMultipleProps {
   data: MetaDataProps[] | any;
@@ -25,7 +25,7 @@ interface SelectMultipleProps {
   style?: ViewStyle;
   onSelectionsChange: (
     selectedItems: MetaDataProps[],
-    currentItem: MetaDataProps,
+    currentItem: MetaDataProps | null,
   ) => void;
   renderItem?: any;
   selectedColor?: string;
@@ -90,16 +90,18 @@ const SelectMultiple: React.FC<SelectMultipleProps> = ({
       onSelectionsChange([...dataSource], null);
     }
   };
-
   const onDelete = async () => {
     if (selectedItems.length === 0) return;
     try {
       const idsToDelete = selectedItems.map(item => item.id);
       await deleteVideos(idsToDelete as Array<string>);
+      const filteredData = dataSource.filter(
+        item => !idsToDelete.includes(item.id),
+      );
+      setDataSource(filteredData);
+      dispatch(retriveDownloadsMedia(filteredData));
       setMultiSelectMode(false);
       onSelectionsChange([], null);
-      const updatedData = await fetchDownloadsVideos();
-      dispatch(PlayScreen(updatedData as MetaDataProps));
     } catch (error) {
       console.log('Error to bulk delete ', error);
     }

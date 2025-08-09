@@ -20,7 +20,7 @@ const FileDownloadNavigator = () => {
   useFocusEffect(
     useCallback(() => {
       fetchDownloadsVideos()
-        .then(data => {
+        .then((data: any) => {
           dispatch(retriveDownloadsMedia(data));
         })
         .catch(e => console.log('Error fetching data:', e));

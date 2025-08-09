@@ -45,3 +45,12 @@ export const mediaName = (name: string = '') => {
     .replace(/\.$/, '')
     .substring(0, 50);
 };
+
+export const formateFileSize = (byts: number) => {
+  if (!byts || isNaN(byts)) return;
+  const sizes = ['Byts', 'KB', 'MB', 'GB'];
+  const resultSize = Math.floor(Math.log(byts) / Math.log(1024));
+  return `${(byts / Math.pow(1024, resultSize)).toFixed(2)} ${
+    sizes[resultSize]
+  }`;
+};
