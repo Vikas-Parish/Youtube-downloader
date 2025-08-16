@@ -8,13 +8,14 @@ import {
 import MediaMetaItems from './MediaMetaItems';
 import {useAppSelector} from '../../../redux/Store';
 import MultiSelector from '../../../components/multi-selector';
+import {DownloadStatus, UserAction} from '../../../types';
 
 const Downloading = () => {
   const [videos, setVideos] = useState<any>();
 
   const {downloaded} = useAppSelector(state => state.download);
   const activeDownloads = Object.values(downloaded).filter(
-    (item: any) => item?.status === 'in_progress' || item?.status === 'paused',
+    (item: any) => item?.status !== DownloadStatus.SUCCESS,
   );
   // console.log('downloaded useAppSelector ', downloaded);
   const [selectedItems, setSelectedItems] = useState([]);

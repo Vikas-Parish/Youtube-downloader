@@ -4,14 +4,13 @@ import {useAppSelector} from '../../../redux/Store';
 import MediaMetaItems from './MediaMetaItems';
 import MultiSelector from '../../../components/multi-selector';
 import {MetaDataProps} from '../../../database/dao/YouTubeDownloads';
+import {DownloadStatus} from '../../../types';
 
 const Downloaded = () => {
   const {downloaded} = useAppSelector(state => state.download);
-
   const filteredDownloads = Object.values(downloaded).filter(
-    (item: any) => item?.status === 'STARTED',
+    (item: any) => item?.status === DownloadStatus.SUCCESS,
   );
-
   const [selectedItems, setSelectedItems] = useState([]);
 
   const handleSelectionChange = (

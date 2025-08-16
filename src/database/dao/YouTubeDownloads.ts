@@ -8,41 +8,45 @@ export type MetaDataProps = {
   status: DownloadStatus;
   path: string;
   userAction: UserAction;
+  totalBytes: number;
   speedInBytePerMs: number;
   downloadedBytes: number;
   videoDetails: DownloadRequestProps;
 };
 
 export const insertNewMedia = async (mediaData: MetaDataProps) => {
+  let createdRecord: any = null;
   await database.write(async () => {
-    await database.get(Tables.downloadedVideos).create((videoModel: any) => {
-      videoModel.status = mediaData.status;
-      videoModel.path = mediaData.path;
-      videoModel.userAction = mediaData.userAction;
-      videoModel.speedInBytePerMs = mediaData.speedInBytePerMs.toString();
-      videoModel.downloadedBytes = mediaData.downloadedBytes;
-      videoModel.videoDetails = JSON.stringify(mediaData.videoDetails);
-    });
+    createdRecord = await database
+      .get(Tables.downloadedVideos)
+      .create((videoModel: any) => {
+        videoModel.status = mediaData.status;
+        videoModel.path = mediaData.path;
+        videoModel.totalBytes = mediaData.totalBytes;
+        videoModel.userAction = mediaData.userAction;
+        videoModel.speedInBytePerMs = mediaData.speedInBytePerMs.toString();
+        videoModel.downloadedBytes = mediaData.downloadedBytes;
+        videoModel.videoDetails = JSON.stringify(mediaData.videoDetails);
+      });
   });
+  return createdRecord.id;
 };
 
-export const updateDownloadStatus = async (
-  id: string,
-  video: MetaDataProps,
-) => {
+export const updateDbStatus = async (id: string, video: MetaDataProps) => {
   await database.write(async () => {
     const videoRecord = await database.get(Tables.downloadedVideos).find(id);
 
-    const videoData = JSON.parse(videoRecord.video);
-
-    const updatedData = {
-      ...videoData,
-      ...video,
-    };
-
-    await videoRecord.update(record => {
-      record.video = JSON.stringify(updatedData);
+    await videoRecord.update((record: any) => {
+      record.status = video.status;
+      record.path = video.path;
+      record.totalBytes = video.totalBytes;
+      record.userAction = video.userAction;
+      record.speedInBytePerMs = video.speedInBytePerMs.toString();
+      record.downloadedBytes = video.downloadedBytes;
+      record.videoDetails = JSON.stringify(video.videoDetails);
     });
+
+    // console.log('updateDownloadStatus: updated record', id, video.status);
   });
 };
 
@@ -56,10 +60,10 @@ export const fetchDownloadsVideos = async () => {
         const dataSet: Array<MetaDataProps> = [];
         medias.forEach((item, index) => {
           const data: any = item?._raw;
-          console.log('dataSet', data);
           dataSet.push({
             id: item?.id,
             path: data?.path,
+            totalBytes: data?.totalBytes,
             downloadedBytes: data?.downloaded_bytes,
             speedInBytePerMs: data?.speed_in_byte_per_ms,
             status: data?.status,

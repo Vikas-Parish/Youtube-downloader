@@ -7,17 +7,14 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {useAppSelector} from '../redux/Store';
 import useDownload from '../hooks/useDownloads';
 import axios from 'axios';
 import Formats from '../components/formats';
 import {fontSizes} from '../constants';
 import BottomSheet from '../components/bottom-sheet';
-import {Dimens} from '../constants/Dimens';
 import Button from '../components/button';
 import {Icon} from 'react-native-eva-icons';
 import {Colors} from '../constants/Colors';
-import {MetaDataProps} from '../database/dao/YouTubeDownloads';
 import {DownloadRequestProps} from '../types';
 
 type ModalProps = {
@@ -41,7 +38,7 @@ const DownloadModal = ({visible, hide, style}: ModalProps) => {
 
   const fetchVideoFormats = async () => {
     try {
-      const response = await axios.get('http://192.168.1.35:3000/download');
+      const response = await axios.get('http://192.168.1.33:3000/download');
       const {audio, video} = response.data[0];
       setAudio(audio);
       setVideo(video);

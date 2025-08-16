@@ -7,6 +7,8 @@ import {useAppSelector} from '../../../redux/Store';
 import MediaDetailModal from '../../../modals/MediaDetailModal';
 import {MetaDataProps} from '../../../database/dao/YouTubeDownloads';
 import Thumbnail from '../../../components/media-thumbnail';
+import {DownloadStatus, UserAction} from '../../../types';
+import useDownload from '../../../hooks/useDownloads';
 
 const MediaMetaItems = ({
   mediaData,
@@ -16,13 +18,20 @@ const MediaMetaItems = ({
   selectedItems?: MetaDataProps[];
 }) => {
   const [visible, setVisible] = useState(false);
+  const {downloadMedia, pauseDownload, resumeDownload} = useDownload();
   const isSelected = selectedItems.some(item => item.id === mediaData.id);
   const mediaDownload = useAppSelector(state => state.download.downloaded);
-  // const progress = useAppSelector(state => {
-  //   const item = state.download.downloaded.find(i => i.id === mediaData.id);
-  //   return item?.progress || 0;
-  // });
+  const item = useAppSelector(state =>
+    state.download.downloaded.find(i => i.id === mediaData.id),
+  );
 
+  const progress =
+    item && item.totalBytes ? item.downloadedBytes / item.totalBytes : 0;
+
+  const speed =
+    item && item.speedInBytePerMs
+      ? (item.speedInBytePerMs * 1000) / (1024 * 1024)
+      : 0;
   return (
     <>
       {mediaData.videoDetails.hasVideo ? (
@@ -43,16 +52,17 @@ const MediaMetaItems = ({
             style={styles.downloadButton}
             onPress={() => {
               selectedItems.length === 0 &&
-                mediaData.status === 'completed' &&
+                mediaData.status === DownloadStatus.SUCCESS &&
                 setVisible(true);
             }}>
-            <Text>{}</Text>
-            {/* <Icon
+            <Icon
               name={
                 isSelected
                   ? 'checkmark-square-2'
                   : selectedItems.length === 0
-                  ? mediaData.status === 'completed'
+                  ? mediaData.status === DownloadStatus.PROGRESS
+                    ? 'pause-circle-outline'
+                    : mediaData.status === DownloadStatus.SUCCESS
                     ? 'more-vertical-outline'
                     : 'download'
                   : 'square'
@@ -60,21 +70,24 @@ const MediaMetaItems = ({
               width={22}
               height={22}
               fill={isSelected ? Colors.primary : Colors.A9A9A9}
-            /> */}
+            />
           </TouchableOpacity>
         </View>
 
-        {mediaData.status !== 'completed' && (
+        {mediaData.status !== DownloadStatus.SUCCESS && (
           <ProgressBar
             color="#007bff"
-            progress={100}
+            progress={progress}
             style={styles.progressBar}
           />
         )}
-
-        <Text style={styles.channel}>{mediaData.filesize}</Text>
+        {mediaData.status !== DownloadStatus.SUCCESS && (
+          <View style={styles.statusRow}>
+            <Text style={styles.speed}>{speed.toFixed(1)}MB/s</Text>
+            <Text style={styles.percent}>{(progress * 100).toFixed(1)}%</Text>
+          </View>
+        )}
       </View>
-
       <MediaDetailModal
         visible={visible}
         data={mediaData}
@@ -127,5 +140,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#555',
     marginTop: 3,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  speed: {
+    fontSize: 12,
+    color: '#007bff',
+  },
+  percent: {
+    fontSize: 12,
+    color: '#555',
   },
 });

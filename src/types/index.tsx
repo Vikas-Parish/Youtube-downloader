@@ -79,4 +79,5 @@ export type DownloadRequestProps = {
   filesize?: string;
   quality?: string;
   hasVideo?: boolean;
+  container?: string;
 };

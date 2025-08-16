@@ -2,9 +2,8 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {
   insertNewMedia,
   MetaDataProps,
+  updateDbStatus,
 } from '../../database/dao/YouTubeDownloads';
-
-export type DownloadStatus = 'in_progress' | 'paused' | 'completed' | 'failed';
 
 export interface DownloadProps {
   downloaded: Array<MetaDataProps>;
@@ -20,13 +19,6 @@ const downloadSlice = createSlice({
   reducers: {
     reset: () => initialState,
 
-    setSelectFormate: (
-      state: DownloadProps,
-      action: PayloadAction<MetaDataProps>,
-    ) => {
-      state.downloaded = [action.payload];
-    },
-
     retriveDownloadsMedia: (
       state: DownloadProps,
       action: PayloadAction<Array<MetaDataProps>>,
@@ -39,41 +31,43 @@ const downloadSlice = createSlice({
       action: PayloadAction<MetaDataProps>,
     ) => {
       const payload = action.payload;
-      console.log('payload', payload);
       state.downloaded.push(payload);
-      insertNewMedia(payload);
+      // insertNewMedia(payload).then(id => {
+      //   const mediaWithId = {...payload, id};
+      //   state.downloaded.push(mediaWithId);
+      // });
     },
-
     updateDownloadStatus: (
       state: DownloadProps,
       action: PayloadAction<MetaDataProps>,
     ) => {
-      const {id, videoId, progress, status} = action.payload;
-      const index = state.downloaded.findIndex(
-        item => item.id === id || item.videoId === videoId,
+      const media = state.downloaded.find(
+        video => video.id === action.payload.id,
       );
-
-      if (index >= 0) {
-        state.downloaded[index] = {
-          ...state.downloaded[index],
-          progress: progress ?? state.downloaded[index].progress,
-          status: status ?? state.downloaded[index].status,
-        };
-        // console.log('Updated download status:', state.downloaded[index]);
+      if (media) {
+        // console.log('[Redux] Updating media:');
+        // console.log('Before:', {...media});
+        Object.assign(media, action.payload);
+        // console.log('After:', media.speedInBytePerMs);
       } else {
-        console.warn('Download item not found:', id || videoId);
+        console.log(
+          `[Redux] No media found with id: ${action.payload.id}=> ${action.payload.downloadedBytes}`,
+        );
       }
+      // state.downloaded = state.downloaded.map(videos =>
+      //   videos.id === action.payload.id
+      //     ? {...videos, ...action.payload}
+      //     : videos,
+      // );
     },
   },
 });
 
 export const {
   reset,
-  setSelectFormate,
   updateDownloadStatus,
   retriveDownloadsMedia,
   downloadNewMedia,
 } = downloadSlice.actions;
 
 export default downloadSlice.reducer;
-  

@@ -21,6 +21,7 @@ const FileDownloadNavigator = () => {
     useCallback(() => {
       fetchDownloadsVideos()
         .then((data: any) => {
+          console.log('fetchDownloadsVideos', data);
           dispatch(retriveDownloadsMedia(data));
         })
         .catch(e => console.log('Error fetching data:', e));
