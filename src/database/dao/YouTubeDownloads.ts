@@ -11,6 +11,7 @@ export type MetaDataProps = {
   totalBytes: number;
   speedInBytePerMs: number;
   downloadedBytes: number;
+  jobId?: number | null;
   videoDetails: DownloadRequestProps;
 };
 
@@ -26,6 +27,7 @@ export const insertNewMedia = async (mediaData: MetaDataProps) => {
         videoModel.userAction = mediaData.userAction;
         videoModel.speedInBytePerMs = mediaData.speedInBytePerMs.toString();
         videoModel.downloadedBytes = mediaData.downloadedBytes;
+        videoModel.jobId = mediaData.jobId;
         videoModel.videoDetails = JSON.stringify(mediaData.videoDetails);
       });
   });
@@ -43,6 +45,7 @@ export const updateDbStatus = async (id: string, video: MetaDataProps) => {
       record.userAction = video.userAction;
       record.speedInBytePerMs = video.speedInBytePerMs.toString();
       record.downloadedBytes = video.downloadedBytes;
+      record.jobId = video.jobId;
       record.videoDetails = JSON.stringify(video.videoDetails);
     });
 
@@ -67,6 +70,7 @@ export const fetchDownloadsVideos = async () => {
             downloadedBytes: data?.downloaded_bytes,
             speedInBytePerMs: data?.speed_in_byte_per_ms,
             status: data?.status,
+            jobId: data?.jobId,
             userAction: data?.user_action,
             videoDetails: data?.video_details
               ? JSON.parse(data?.video_details)

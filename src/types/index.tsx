@@ -59,6 +59,7 @@ export enum DownloadStatus {
   PAUSED = 'PAUSED',
   FAILED = 'FAILED',
   QUEUED = 'QUEUED',
+  STOP = 'STOP',
 }
 
 export enum UserAction {

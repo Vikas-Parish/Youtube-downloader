@@ -7,7 +7,7 @@ import {useAppSelector} from '../../../redux/Store';
 import MediaDetailModal from '../../../modals/MediaDetailModal';
 import {MetaDataProps} from '../../../database/dao/YouTubeDownloads';
 import Thumbnail from '../../../components/media-thumbnail';
-import {DownloadStatus, UserAction} from '../../../types';
+import {DownloadStatus} from '../../../types';
 import useDownload from '../../../hooks/useDownloads';
 
 const MediaMetaItems = ({
@@ -19,8 +19,9 @@ const MediaMetaItems = ({
 }) => {
   const [visible, setVisible] = useState(false);
   const {downloadMedia, pauseDownload, resumeDownload} = useDownload();
+
   const isSelected = selectedItems.some(item => item.id === mediaData.id);
-  const mediaDownload = useAppSelector(state => state.download.downloaded);
+
   const item = useAppSelector(state =>
     state.download.downloaded.find(i => i.id === mediaData.id),
   );
@@ -32,6 +33,16 @@ const MediaMetaItems = ({
     item && item.speedInBytePerMs
       ? (item.speedInBytePerMs * 1000) / (1024 * 1024)
       : 0;
+
+  const handleDownloadPress = () => {
+    // If already downloading, pause/resume
+    if (mediaData.status === DownloadStatus.PROGRESS) {
+      pauseDownload();
+    } else {
+      downloadMedia(mediaData.videoDetails); // pass the download info
+    }
+  };
+
   return (
     <>
       {mediaData.videoDetails.hasVideo ? (
@@ -72,22 +83,34 @@ const MediaMetaItems = ({
               fill={isSelected ? Colors.primary : Colors.A9A9A9}
             />
           </TouchableOpacity>
+
+          {/* New Download/Pause/Resume Button */}
+          <TouchableOpacity
+            onPress={handleDownloadPress}
+            style={{marginLeft: 10}}>
+            <Text style={{color: Colors.primary}}>
+              {mediaData.status === DownloadStatus.PROGRESS
+                ? 'Pause'
+                : 'Download'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {mediaData.status !== DownloadStatus.SUCCESS && (
-          <ProgressBar
-            color="#007bff"
-            progress={progress}
-            style={styles.progressBar}
-          />
-        )}
-        {mediaData.status !== DownloadStatus.SUCCESS && (
-          <View style={styles.statusRow}>
-            <Text style={styles.speed}>{speed.toFixed(1)}MB/s</Text>
-            <Text style={styles.percent}>{(progress * 100).toFixed(1)}%</Text>
-          </View>
+          <>
+            <ProgressBar
+              color="#007bff"
+              progress={progress}
+              style={styles.progressBar}
+            />
+            <View style={styles.statusRow}>
+              <Text style={styles.speed}>{speed.toFixed(1)}MB/s</Text>
+              <Text style={styles.percent}>{(progress * 100).toFixed(1)}%</Text>
+            </View>
+          </>
         )}
       </View>
+
       <MediaDetailModal
         visible={visible}
         data={mediaData}
@@ -100,12 +123,6 @@ const MediaMetaItems = ({
 export default React.memo(MediaMetaItems);
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-    marginTop: 10,
-    alignItems: 'center',
-  },
   thumbnails: {
     width: 80,
     height: 80,
@@ -135,11 +152,6 @@ const styles = StyleSheet.create({
     height: 3,
     backgroundColor: '#E0E0E0',
     marginVertical: 5,
-  },
-  channel: {
-    fontSize: 12,
-    color: '#555',
-    marginTop: 3,
   },
   statusRow: {
     flexDirection: 'row',

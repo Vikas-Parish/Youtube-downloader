@@ -38,7 +38,7 @@ const DownloadModal = ({visible, hide, style}: ModalProps) => {
 
   const fetchVideoFormats = async () => {
     try {
-      const response = await axios.get('http://192.168.1.33:3000/download');
+      const response = await axios.get('http://192.168.1.11:3000/download');
       const {audio, video} = response.data[0];
       setAudio(audio);
       setVideo(video);

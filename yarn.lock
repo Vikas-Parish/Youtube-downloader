@@ -2001,6 +2001,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kesha-antonov/react-native-background-downloader@npm:^3.2.6":
+  version: 3.2.6
+  resolution: "@kesha-antonov/react-native-background-downloader@npm:3.2.6"
+  peerDependencies:
+    react-native: ">=0.57.0"
+  checksum: 954128d26c297bce94c4b9c9991120ed72b2cf268413e5ae9ef27b33924774c036b814bf99548ecf7269d8d9fa246bd852d624a1b9115d9058a6b47f5bb52432
+  languageName: node
+  linkType: hard
+
 "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1":
   version: 5.1.1-v1
   resolution: "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1"
@@ -10542,6 +10551,7 @@ __metadata:
     "@babel/plugin-proposal-decorators": ^7.25.9
     "@babel/preset-env": ^7.25.3
     "@babel/runtime": ^7.25.0
+    "@kesha-antonov/react-native-background-downloader": ^3.2.6
     "@nozbe/watermelondb": ^0.27.1
     "@react-native-community/cli": 15.0.1
     "@react-native-community/cli-platform-android": 15.0.1
